@@ -1,0 +1,31 @@
+"0","rho <- 0.5
+sig_xy <-  rho*sig_x*sig_y
+Sigma_xy <-  matrix(c(sig_x^2, sig_xy, sig_xy, sig_y^2), 2, 2, byrow=TRUE)
+xy_vals <-  data.frame(rmvnorm(n, mean=c(mu_x, mu_y), sigma=Sigma_xy))
+ggplot(xy_vals, aes(X1, X2)) +
+  geom_point(color='blue') +
+  geom_hline(yintercept=mu_y, linetype='dashed', color='black') +
+  geom_vline(xintercept=mu_x, linetype='dashed', color='black') +
+  ggtitle(expression(paste(""Bivariate Normal: "", rho, ""=0.5""))) +
+  xlab('x') +
+  ylab('y')
+pmvnorm(lower=c(-Inf, -Inf), upper=c(0, 0), mean=c(mu_x, mu_y), sigma=Sigma_xy)
+"
+"1","[1]"
+"1"," 0.2574488"
+"1","
+"
+"1","attr(,""error"")"
+"1","
+"
+"1","[1]"
+"1"," 1e-15"
+"1","
+"
+"1","attr(,""msg"")"
+"1","
+"
+"1","[1]"
+"1"," ""Normal Completion"""
+"1","
+"

@@ -1,0 +1,13 @@
+"0","# Annualized simple mean
+exp(12*apply(ret.mat, 2, mean)) - 1
+"
+"1","  VBLTX "
+"1","  FMAGX "
+"1","   SBUX "
+"1","
+"
+"1","0.06569 "
+"1","0.02252 "
+"1","0.14548 "
+"1","
+"

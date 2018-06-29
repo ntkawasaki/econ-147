@@ -1,0 +1,1 @@
+"0","plot(density(MSFT.ret),type=""l"", main=""Smoothed density"", xlab=""daily returns"", ylab=""density estimate"", col=""slateblue1"")"

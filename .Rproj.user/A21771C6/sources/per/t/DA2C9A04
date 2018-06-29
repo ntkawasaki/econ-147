@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1527347697829.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "0|3|5|0|\n",
+    "hash" : "594148829",
+    "id" : "DA2C9A04",
+    "lastKnownWriteTime" : 1527353802,
+    "last_content_update" : 1527353802505,
+    "path" : "~/Desktop/ECON 147/Homework 5/homework_5_markdown.Rmd",
+    "project_path" : "Homework 5/homework_5_markdown.Rmd",
+    "properties" : {
+        "cursorPosition" : "158,143",
+        "last_setup_crc32" : "F1187DB741608299",
+        "scrollLine" : "144",
+        "tempName" : "Untitled1",
+        "working_dir" : "current"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

@@ -1,0 +1,13 @@
+"0","# Annualized sd values
+sqrt(12)*apply(ret.mat, 2, sd)
+"
+"1","  VBLTX "
+"1","  FMAGX "
+"1","   SBUX "
+"1","
+"
+"1","0.09101 "
+"1","0.22202 "
+"1","0.41359 "
+"1","
+"

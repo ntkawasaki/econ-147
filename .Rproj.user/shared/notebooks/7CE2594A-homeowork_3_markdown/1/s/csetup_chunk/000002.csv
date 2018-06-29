@@ -1,0 +1,8 @@
+"0","knitr::opts_chunk$set("
+"0","  echo=TRUE,"
+"0","  root.dir='/Users/noahkawasaki/Desktop/ECON 147/Homework 3',"
+"0","  fig.width=5,"
+"0","  fig.height=3"
+"0","  )"
+"0","library(tidyverse)"
+"0","library(mvtnorm)"

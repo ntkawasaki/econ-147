@@ -1,0 +1,228 @@
+---
+title: "Homework 5"
+author: "Noah Kawasaki"
+date: "5/26/2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo=FALSE,
+  message=FALSE,
+  warning=FALSE,
+  echo=FALSE,
+  root.dir='/Users/noahkawasaki/Desktop/ECON 147/Homework 5'
+  )
+
+library(PerformanceAnalytics)
+library(quantmod)
+library(TSA)
+library(car) 
+library(tseries) 
+library(tidyverse)
+
+symbols <- c("MSFT", "^GSPC")
+getSymbols(symbols, from ="2000-01-03", to = "2014-02-21")
+
+# Extract adjusted closing prices
+MSFT <- MSFT[, "MSFT.Adjusted", drop=FALSE]
+GSPC <- GSPC[, "GSPC.Adjusted", drop=FALSE]
+
+# Calculate log-returns for GARCH analysis
+MSFT.ret <- CalculateReturns(MSFT, method="compound")
+GSPC.ret <- CalculateReturns(GSPC, method="compound")
+
+# Remove default column header which is treated as the first observation
+MSFT.ret <- MSFT.ret[-1,]
+GSPC.ret <- GSPC.ret[-1,]
+
+# Rename column
+colnames(MSFT.ret) <- "MSFT" 
+colnames(GSPC.ret) <- "GSPC"
+```
+
+
+##### (a) Make time plots of the return data from 2000-01-03 to 2014-02-21. Comment on any stylized fact on returns suggested by the plots.
+```{r}
+# Plot returns
+plot(MSFT.ret, main="Microsoft Daily Returns")
+plot(GSPC.ret, main="S&P500 Daily Returns")
+```
+
+The stylized facts we can notice are:  
+- Mean reversion near zero  
+- Volatiltiy clustering  
+
+
+##### (b) For each return series, make a four panel plot containing a return plot, acf, density plot and normal QQ-plot. Do the return series look normally distributed?
+```{r}
+# Microsoft 
+par(mfrow=c(2,2))
+plot(MSFT.ret, main="MSFT daily returns")
+acf(MSFT.ret, main="ACF", lwd=2)
+plot(density(MSFT.ret),type="l", main="Smoothed density", xlab="daily returns", ylab="density estimate", col="slateblue1")
+qqnorm(MSFT.ret, col="slateblue1")
+qqline(MSFT.ret)
+par(mfrow=c(1,1))
+```
+
+The ACF of the series indicates no or weak correlation across time. The Density plot shows that it is a bell-shaped curve. However, the QQ-Plot indicates heavier tails than a normal distribution.
+
+
+```{r}
+# S&P500
+par(mfrow=c(2,2))
+plot(GSPC.ret, main="SP500 daily returns")
+acf(GSPC.ret, main="ACF", lwd=2)
+plot(density(GSPC.ret),type="l", main="Smoothed density", xlab="daily returns", ylab="density estimate", col="slateblue1")
+qqnorm(GSPC.ret, col="slateblue1")
+qqline(GSPC.ret)
+par(mfrow=c(1,1))
+```
+
+The ACF indicates time dependence up to order 2 lages and then some other spikes past that the most likely do not carry economic meaning. The density plot and QQ-Plot also indicate a bell-shaped curve with heavier tails than a normal distribution.
+
+##### (c) Testing normality of each return distribution using Jarque-Bera test statistics.
+```{r}
+jarque.bera.test(MSFT.ret)
+jarque.bera.test(GSPC.ret)
+```
+
+For both series, we reject the null hypothesis that r~t~ is normally distributed.
+
+
+##### (d) Now estimate GARCH(1,1) model parameters (as in Review Questions) and report the estimated values of $\alpha_1$ + $\beta_1$. How do you interpret these results?
+
+#### (e) Plot the fitted values and the observed values. Comment on plots
+
+##### (f) For parameters $\alpha_1$ and $\beta_1$ compute 95% and (asymptotic) confidence intervals.
+
+##### (g) Test H~0~: $\alpha_1$=0 with 95% confidence level for each returns. Do the test H~0~: $\beta_1$=0.9 as well.
+
+### MSFT
+```{r}
+garch_AP  <- garch(MSFT.ret, order = c(1,1))
+n  = dim(MSFT.ret)[1]
+n0 = n-1
+summary(garch_AP)
+attach(garch_AP)
+
+omega_est  = coef[1]                   # estimator of omega
+sd_omega   = vcov[1,1]^.5              # standard deviation estimator of the estimator of omega
+alpha1_est = coef[2]                   # estimator of alpha1
+sd_alpha1  = vcov[2,2]^.5              # standard deviation estimator of the estimator of alpha1
+beta1_est  = coef[3]                   # estimator of beta1
+sd_beta1   = vcov[3,3]^.5              # standard deviation estimator of the estimator of beta1
+sig        = fitted.values[2:n0,c(1)]  # fitted conditioinal standard deviation sigma_t
+rsd        = residuals[2:n0]           # fitted residuals for e_t 
+fit.r      = sig*rsd                   # fitted cc return for r_t
+n1         = n0-1
+date       = 1:n1
+date_i     = seq(from = 1, to = n0, by = 250)
+lab_x      = seq(from = 2000, to = 2014, by = 1)
+
+# plot the real cc return and the fitted cc return
+par(mfrow=c(2,1))
+par(mar = c(3,4.5,1.5,2))
+plot(date, MSFT.ret[3:n], type='l',col='blue',xaxt = 'n', xlab= "",ylab="", xlim=c(1,n1), ylim=c(-.15,.15))
+axis(1, at=date_i, labels=lab_x) 
+title('Real Data (MSFT)')
+plot(date,fit.r, type='l',col='green',xaxt = 'n', xlab= "",ylab="", xlim=c(1,n1), ylim=c(-.15,.15))
+axis(1, at=date_i, labels=lab_x) 
+title('Fitted Data (MSFT)')
+```
+
+For MSFT, $\omega$ = 0.000006, $\alpha_1$ = 0.07, and $\beta_1$ = 0.9. So $\alpha_1$ + $\beta_1$ = 0.97 which is very close to 1 or a random walk process.  
+
+The fitted values and the observed values for both series look very similar, which means the GARCH(1,1) model did a good job at explaining our data.
+
+
+##### Confidence Intervals
+```{r}
+a1_ci <- c(alpha1_est-1.96*sd_alpha1, alpha1_est+1.96*sd_alpha1)
+a1_ci
+
+b1_ci <- c(beta1_est-1.96*sd_beta1, beta1_est+1.96*sd_beta1)
+b1_ci
+```
+
+
+##### Hypothesis Tests
+```{r}
+# Test a1
+(alpha1_est-0)/sd_alpha1
+
+# Test b1
+(beta1_est-0.9)/sd_beta1
+```
+
+Since both t statistics are greater than the z scores, we reject the null hypotheses and conclude that $\alpha_1$ > 0 and $\beta_1$ $\neq$ 0.9.
+
+
+
+### S&P500
+```{r}
+# GARCH(1,1) with GSPC
+garch_AP  <- garch(GSPC.ret, order = c(1,1))
+n  = dim(MSFT.ret)[1]
+n0 = n-1
+summary(garch_AP)
+attach(garch_AP)
+# The estimation results are in garch_AP
+# coef: contains the estimators of omega, alpha1 and beta1
+# vcov: contains the variance estimators of the estimators of omega, alpha1 and beta1
+# fitted.values: contains the fitted conditioinal standard deviation sigma_t
+# residuals: contains the fitted residuals for e_t 
+
+omega_est  = coef[1]                   # estimator of omega
+sd_omega   = vcov[1,1]^.5              # standard deviation estimator of the estimator of omega
+alpha1_est = coef[2]                   # estimator of alpha1
+sd_alpha1  = vcov[2,2]^.5              # standard deviation estimator of the estimator of alpha1
+beta1_est  = coef[3]                   # estimator of beta1
+sd_beta1   = vcov[3,3]^.5              # standard deviation estimator of the estimator of beta1
+sig        = fitted.values[2:n0,c(1)]  # fitted conditioinal standard deviation sigma_t
+rsd        = residuals[2:n0]           # fitted residuals for e_t 
+fit.r      = sig*rsd                   # fitted cc return for r_t
+n1         = n0-1
+date       = 1:n1
+date_i     = seq(from = 1, to = n0, by = 250)
+lab_x      = seq(from = 2000, to = 2014, by = 1)
+
+# plot the real cc return and the fitted cc return
+par(mfrow=c(2,1))
+par(mar = c(3,4.5,1.5,2))
+plot(date, GSPC.ret[3:n], type='l',col='blue',xaxt = 'n', xlab= "",ylab="", xlim=c(1,n1), ylim=c(-.1,.1))
+axis(1, at=date_i, labels=lab_x) 
+title('Real Data (GSPC)')
+plot(date,fit.r, type='l',col='green',xaxt = 'n', xlab= "",ylab="", xlim=c(1,n1), ylim=c(-.1,.1))
+axis(1, at=date_i, labels=lab_x) 
+title('Fitted Data (GSPC)')
+```
+
+For S&P500, $\omega$ = 0.0000015, $\alpha_1$ = 0.086, and $\beta_1$ = 0.9. So $\alpha_1$ + $\beta_1$ = 0.98 which is also very close to 1 or a random walk process.  
+
+The fitted values and the observed values for both series look very similar, which means the GARCH(1,1) model did a good job at explaining our data.
+
+
+##### Confidence Intervals
+```{r}
+a1_ci <- c(alpha1_est-1.96*sd_alpha1, alpha1_est+1.96*sd_alpha1)
+a1_ci
+
+b1_ci <- c(beta1_est-1.96*sd_beta1, beta1_est+1.96*sd_beta1)
+b1_ci
+```
+
+
+##### Hypothesis Tests
+```{r}
+# Test a1
+(alpha1_est-0)/sd_alpha1
+
+# Test b1
+(beta1_est-0.9)/sd_beta1
+```
+
+$\alpha_1$ is greater than its z score but $\beta_1$ is less than its z score so we reject the null for $\alpha_1$ and conclude that $\alpha_1$ > 0 but fail to reject for $\beta_1$ and conclude that $\beta_1$ = 0.9.
+
+

@@ -1,0 +1,129 @@
+---
+title: "Homework 2"
+output: pdf_document
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(
+  echo=TRUE,
+  root.dir='/Users/noahkawasaki/Desktop/ECON 147/Homework 2'
+  )
+library(tidyverse)
+```
+
+
+## Question 2
+Suppose X is a normally distributed random variable with mean 0 and variance 1 (i.e., standard normal). Compute the following (Hint: you can use the R functions pnorm and qnorm to answer these questions).
+
+$Pr(X < -1.96)$
+```{r}
+pnorm(-1.96)
+```
+  
+$Pr(X > 1.64)$
+```{r}
+pnorm(-1.64)
+```
+  
+$Pr(-0.5 < X < 0.5)$
+```{r}
+pnorm(0.5) - pnorm(-0.5)
+```
+
+$q_{.01}$
+```{r}
+qnorm(0.01)
+```
+
+$q_{.99}$
+```{r}
+qnorm(0.99)
+```
+
+$q_{.05}$
+```{r}
+qnorm(0.05)
+```
+
+$q_{.95}$
+```{r}
+qnorm(0.95)
+```
+  
+
+## Question 3
+Let X denote the monthly return on Microsoft Stock and let Y denote the monthly return on Starbucks stock. Assume that X~N(0.05, (0.10)^2^) and Y~N(0.025, (0.05)^2^).
+
+- Using a grid of values between -0.25 and 0.35, plot the normal curves for X and Y. Make sure that both normal curves are on the same plot.
+- Comment on the risk-return trade-offs for the two stocks. Which one do you want to invest?
+```{r}
+x <- seq(-0.5, 0.5, length=100)
+xd <- dnorm(x, 0.05, 0.10)
+
+y <- seq(-0.5, 0.5, length=100)
+yd <- dnorm(y, 0.025, 0.05)
+
+cols <- c('X'='blue', 'Y'='red')
+ggplot() +
+  geom_line(aes(x=x, y=xd, color='X'), na.rm=TRUE) +
+  geom_vline(xintercept=0.05, color='blue', linetype='dashed') +
+  geom_line(aes(x=y, y=yd, color='Y'), na.rm=TRUE) +
+  geom_vline(xintercept=0.025, color='red', linetype='dashed') +
+  xlim(-0.25, 0.35) +
+  ggtitle('Normal Distribution') +
+  xlab('Value') +
+  ylab('Frequency') +
+  scale_color_manual('Legend', values=cols)
+```
+
+From this distribution plot we can see that X has a higher expected value than Y, but also a higher variance. So the decision on which stock to invest in will depend on the risk averse level of the investor
+
+
+## Question 6
+```{r}
+xc = seq(0, 20, length=100)
+xcd_1 <- dchisq(xc, df=1)
+xcd_2 <- dchisq(xc, df=2)
+xcd_4 <- dchisq(xc, df=4)
+xcd_10 <- dchisq(xc, df=10)
+
+df_chi <- data.frame(xc, xcd_1, xcd_2, xcd_4, xcd_10)
+
+cols2 <- c('1'='red', '2'='blue', '4'='green', '10'='orange')
+ggplot(df_chi, aes(x=xc)) +
+  geom_line(aes(y=xcd_1, color='1'), linetype='solid') +
+  geom_line(aes(y=xcd_2, color='2'), linetype='dashed') +
+  geom_line(aes(y=xcd_4, color='4'), linetype='twodash') +
+  geom_line(aes(y=xcd_10, color='10'), linetype='longdash') +
+  xlim(0,20) +
+  ggtitle('Chi Squared Distribution') +
+  xlab('Value') +
+  ylab('Frequency') +
+  scale_color_manual('Degrees of Freedom', values=cols2)
+```
+
+```{r}
+xt = seq(-5, 5, length=100)
+xtn <- dnorm(xt)
+xt_1 <- dt(xt, df=1)
+xt_2 <- dt(xt, df=2)
+xt_4 <- dt(xt, df=4)
+xt_10 <- dt(xt, df=10)
+
+df_t <- data.frame(xt, xt_1, xt_2, xt_4, xt_10, xtn)
+
+cols2 <- c('1'='red', '2'='blue', '4'='green', '10'='orange', 'Normal'='black')
+ggplot(df_t, aes(x=xt)) +
+  geom_line(aes(y=xt_1, color='1'), linetype='solid') +
+  geom_line(aes(y=xt_2, color='2'), linetype='dashed') +
+  geom_line(aes(y=xt_4, color='4'), linetype='twodash') +
+  geom_line(aes(y=xt_10, color='10'), linetype='longdash') +
+  geom_line(aes(y=xtn, color='Normal')) +
+  xlim(-5,5) +
+  ggtitle('Student t Distribution') +
+  xlab('Value') +
+  ylab('Frequency') +
+  scale_color_manual('Degrees of Freedom', values=cols2)
+```
+
+The 5% VaR of the t distribution with 2 degrees of freedom will be greater in absolute value because the tails are fatter than the normal distribution. Assuming normality may lead to underestimation of Value at Risk.

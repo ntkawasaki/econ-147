@@ -1,0 +1,3 @@
+"0","# Microsoft "
+"0","par(mfrow=c(2,2))"
+"0","plot(MSFT.ret, main=""MSFT daily returns"")"

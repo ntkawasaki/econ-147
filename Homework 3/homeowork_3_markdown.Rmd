@@ -1,0 +1,173 @@
+---
+title: "Homework 3"
+output: pdf_document
+author: Noah Kawasaki
+date: '05/07/2018'
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(
+  echo=TRUE,
+  root.dir='/Users/noahkawasaki/Desktop/ECON 147/Homework 3',
+  fig.width=5,
+  fig.height=3
+  )
+library(tidyverse)
+library(mvtnorm)
+```
+
+# R Exercises
+
+## Question 1.
+### Let X and Y be distributed bivariate normal with:
+$$\mu_X=0.01,\ \mu_Y=0.05,\ \sigma_X=0.25,\ \sigma_Y=0.15$$
+```{r}
+# Initial parameters and variables
+mu_x <- 0.01
+mu_y <-  0.05
+sig_x <-  0.25
+sig_y <-  0.15
+
+n <-  100
+set.seed(123)
+```
+
+#### Using R package function rmvnorm(), simulate 100 observations from the bivariate distribution. Using the plot() function create a scatterplot of the observations and comment on the direction and strength of the linear association. Using the function pmvnorm(), compute the joint probability: $P(X\leq0, Y\leq0):$
+
+
+#### a) $\rho_{XY}=0.99$
+```{r}
+rho <- 0.99
+sig_xy <-  rho*sig_x*sig_y
+Sigma_xy <-  matrix(c(sig_x^2, sig_xy, sig_xy, sig_y^2), 2, 2, byrow=TRUE)
+xy_vals <-  data.frame(rmvnorm(n, mean=c(mu_x, mu_y), sigma=Sigma_xy))
+
+ggplot(xy_vals, aes(X1, X2)) +
+  geom_point(color='blue') +
+  geom_hline(yintercept=mu_y, linetype='dashed', color='black') +
+  geom_vline(xintercept=mu_x, linetype='dashed', color='black') +
+  ggtitle(expression(paste("Bivariate Normal: ", rho, "=0.99"))) +
+  xlab('x') +
+  ylab('y')
+
+pmvnorm(lower=c(-Inf, -Inf), upper=c(0, 0), mean=c(mu_x, mu_y), sigma=Sigma_xy)[1]
+```
+
+Here we observe a very strong positive linear association.
+
+#### b) $\rho_{XY}=0.9$
+```{r}
+rho <- 0.9
+sig_xy <-  rho*sig_x*sig_y
+Sigma_xy <-  matrix(c(sig_x^2, sig_xy, sig_xy, sig_y^2), 2, 2, byrow=TRUE)
+xy_vals <-  data.frame(rmvnorm(n, mean=c(mu_x, mu_y), sigma=Sigma_xy))
+
+ggplot(xy_vals, aes(X1, X2)) +
+  geom_point(color='blue') +
+  geom_hline(yintercept=mu_y, linetype='dashed', color='black') +
+  geom_vline(xintercept=mu_x, linetype='dashed', color='black') +
+  ggtitle(expression(paste("Bivariate Normal: ", rho, "=0.9"))) +
+  xlab('x') +
+  ylab('y')
+
+pmvnorm(lower=c(-Inf, -Inf), upper=c(0, 0), mean=c(mu_x, mu_y), sigma=Sigma_xy)[1]
+```
+
+Here we still observe a clear positive linear association, but it is more sparse.
+
+#### c) $\rho_{XY}=0.5$
+```{r}
+rho <- 0.5
+sig_xy <-  rho*sig_x*sig_y
+Sigma_xy <-  matrix(c(sig_x^2, sig_xy, sig_xy, sig_y^2), 2, 2, byrow=TRUE)
+xy_vals <-  data.frame(rmvnorm(n, mean=c(mu_x, mu_y), sigma=Sigma_xy))
+
+ggplot(xy_vals, aes(X1, X2)) +
+  geom_point(color='blue') +
+  geom_hline(yintercept=mu_y, linetype='dashed', color='black') +
+  geom_vline(xintercept=mu_x, linetype='dashed', color='black') +
+  ggtitle(expression(paste("Bivariate Normal: ", rho, "=0.5"))) +
+  xlab('x') +
+  ylab('y')
+
+pmvnorm(lower=c(-Inf, -Inf), upper=c(0, 0), mean=c(mu_x, mu_y), sigma=Sigma_xy)[1]
+```
+
+Here it is difficult to tell, but there is still a weak linear positive association.
+
+
+#### d) $\rho_{XY}=0$
+```{r}
+rho <- 0
+sig_xy <-  rho*sig_x*sig_y
+Sigma_xy <-  matrix(c(sig_x^2, sig_xy, sig_xy, sig_y^2), 2, 2, byrow=TRUE)
+xy_vals <-  data.frame(rmvnorm(n, mean=c(mu_x, mu_y), sigma=Sigma_xy))
+
+ggplot(xy_vals, aes(X1, X2)) +
+  geom_point(color='blue') +
+  geom_hline(yintercept=mu_y, linetype='dashed', color='black') +
+  geom_vline(xintercept=mu_x, linetype='dashed', color='black') +
+  ggtitle(expression(paste("Bivariate Normal: ", rho, "=0"))) +
+  xlab('x') +
+  ylab('y')
+
+pmvnorm(lower=c(-Inf, -Inf), upper=c(0, 0), mean=c(mu_x, mu_y), sigma=Sigma_xy)[1]
+```
+
+Here we observe no correlation, the dots look randomly scattered.
+
+#### e) $\rho_{XY}=-0.9$
+```{r}
+rho <- -0.9
+sig_xy <-  rho*sig_x*sig_y
+Sigma_xy <-  matrix(c(sig_x^2, sig_xy, sig_xy, sig_y^2), 2, 2, byrow=TRUE)
+xy_vals <-  data.frame(rmvnorm(n, mean=c(mu_x, mu_y), sigma=Sigma_xy))
+
+ggplot(xy_vals, aes(X1, X2)) +
+  geom_point(color='blue') +
+  geom_hline(yintercept=mu_y, linetype='dashed', color='black') +
+  geom_vline(xintercept=mu_x, linetype='dashed', color='black') +
+  ggtitle(expression(paste("Bivariate Normal: ", rho, "=-0.9"))) +
+  xlab('x') +
+  ylab('y')
+
+pmvnorm(lower=c(-Inf, -Inf), upper=c(0, 0), mean=c(mu_x, mu_y), sigma=Sigma_xy)[1]
+```
+
+This plot shows a clear negative linear association.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

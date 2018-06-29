@@ -1,0 +1,199 @@
+---
+title: "Homework 1"
+author: "Noah Kawasaki"
+date: "4-13-2017"
+output:
+  pdf_document: 
+    fig_width: 7
+    keep_tex: yes
+    latex_engine: xelatex
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE)
+knitr::opts_chunk$set(root.dir='/Users/noahkawasaki/Desktop/ECON 147/Homework 1')
+
+library(tidyverse)
+library(reshape2)
+```
+
+## Part 1: Review Questions
+Consider the following (actual) monthly adjusted closing price data for Starbucks stock over the period December 2011 through December 2012:
+
+
+#### Create dataframe
+```{r}
+# Vectors
+date <- c('12/31/2011', '1/31/2012', '2/28/2012', '3/31/2012', '4/30/2012', '5/31/2012', '6/30/2012', '7/31/2012', '8/31/2012', '9/30/2012', '10/31/2012', '11/30/2012', '12/31/2012')
+price <- c(44.89, 46.76, 47.55, 54.73, 56.17, 53.91, 52.37, 44.47, 48.91, 50.00, 45.26, 51.36, 53.10)
+
+df <- data.frame(date, price)
+# Reformat as date type
+df$date <- as.Date(df$date, format="%m/%d/%Y")
+
+df
+```
+
+
+#### 1. Using the data in the table, what is the *simple monthly return* between the end of December, 2011 and the end of January 2012? If you invested $10,000 in Starbucks at the end of December 2011, how much would the investment be worth at the end of January 2012?
+
+$$R_t = \frac{P_t - P_{t-1}}{P_{t-1}}$$
+```{r}
+Rt <- (46.76-44.89)/44.89
+Rt
+```
+
+
+$$ FV = 10000(1+R_t)$$
+```{r}
+FV <- 10000*(1+Rt)
+FV
+```
+
+
+#### 2. Using the data in the table, what is the *continuously compounded monthly return* between December, 2011 and January 2012? Convert this continuously compounded return to a simple return (you should get the same answer as in part 1).
+
+$$r_t = ln(1+R_t) = ln\Big(\frac{P_t}{P_{t-1}}\Big)$$
+```{r}
+rt <- log((46.76/44.89))
+rt
+```
+
+
+$$R_t = e^{r_t} - 1$$
+```{r}
+rt_converted <- exp(rt) - 1
+rt_converted
+```
+
+Note that this is the same answer from part 1.
+
+
+#### 3. Assuming that the *simple monthly return* you computed in part 1 is the same for 12 months, what is the *simple annual return* with monthly compounding?
+
+$$R_t(12) = R_A = (1+R_t)^{12} - 1$$
+```{r}
+Rt_12 <- (1 + Rt)^12 - 1
+Rt_12
+```
+
+
+#### 4. Assuming that the *continuously compounded monthly return* you computed in part 2 is the same for 12 months, what is the *continuously compounded annual return*?
+
+$$r_t(12) = r_A = 12*r_t$$
+```{r}
+ra <- 12*rt
+ra
+```
+
+
+#### 5. Using the data in the table, compute the *actual simple annual return* between December 2011 and December 2012. If you invested $10,000 in Starbucks at the end of December 2011, how much would the investment be worth at the end of December 2012? Compare with your result in part 3.
+
+$$R_t(12) = R_A = \frac{P_t - P_{t-12}}{P_{t-12}} $$
+```{r}
+RA <- (53.10-44.89)/44.89
+RA
+```
+
+
+$$ FV = 10000(1+R_A)$$
+```{r}
+FV_A <- 10000*(1+RA) 
+FV_A
+```
+
+
+#### 6. Using the data in the table, compute the actual annual continuously compounded return between December 2011 and December 2012. Compare with your result in part (4). Convert this continuously compounded return to a simple return (you should get the same answer as in part 5).
+
+$$r_A  = r_t(12) = ln(1+R_t(12)) = ln\Big(\frac{P_t}{P_{t-12}}\Big)$$
+
+```{r}
+ra <- log(53.10/44.89)
+ra
+```
+
+$$R_A = e^{r_A} - 1$$
+```{r}
+RA_converted <- exp(ra) - 1
+RA_converted
+```
+
+Note that this is the same answer as part 5.
+
+
+## Part 2: R Exercises
+
+#### 1) Manipulate data
+```{r}
+starbucks = read.csv('/Users/noahkawasaki/Desktop/ECON 147/Homework 1/sbuxPrices.csv')
+# Reformat as date type
+starbucks$Date <- as.Date(starbucks$Date, format="%m/%d/%Y")
+# Rename
+colnames(starbucks) <- c('date', 'price')
+
+head(starbucks)
+```
+
+
+#### 2) Plot 
+```{r}
+ggplot(data=starbucks, mapping=aes(date, price)) +
+  geom_line(color='#3796db', lwd=1) +
+  ggtitle('Starbucks Adj. Closing Price') +
+  xlab('Year') +
+  ylab('Price')
+```
+
+
+#### 3) Compute monthly simple and continuously compounded returns. Plot these returns separately first. Then also plot on the same graph.
+
+##### Computations
+```{r}
+starbucks['price_lag'] <- lag(starbucks$price)
+starbucks['simple_return'] <- (starbucks$price-starbucks$price_lag)/(starbucks$price_lag)
+starbucks['cc_return'] <- log(starbucks$price) - log(starbucks$price_lag)
+```
+
+
+##### Simple Returns
+```{r, message=FALSE, warning=FALSE}
+ggplot(data=starbucks, mapping=aes(date, simple_return)) +
+  geom_line(color='black', lwd=1) +
+  geom_hline(yintercept=0, linetype='dashed') +
+  ylim(-0.5, 0.5) +
+  ggtitle('Starbucks Simple Returns') +
+  xlab('Year') +
+  ylab('Rate')
+```
+
+##### CC Returns 
+```{r, message=FALSE, warning=FALSE}
+ggplot(data=starbucks, mapping=aes(date, cc_return)) +
+  geom_line(color='green', lwd=1) +
+  geom_hline(yintercept=0, linetype='dashed') +
+  ylim(-0.5, 0.5) +
+  ggtitle('Starbucks CC Returns') +
+  xlab('Year') +
+  ylab('Rate')
+```
+
+
+##### Simple and CC Returns
+```{r, message=FALSE, warning=FALSE}
+# Rearrange dataframe for multiple series plotting
+ss <- starbucks[, c(1, 4, 5)]
+dd = melt(ss, id=c("date"))
+
+ggplot(data=starbucks) +
+  geom_line(mapping=aes(date, simple_return), color='black', lwd=0.5) +
+  geom_line(mapping=aes(date, cc_return), color='green', lwd=0.5) +
+  geom_hline(yintercept=0, linetype='dashed') +
+  ylim(-0.5, 0.5) +
+  ggtitle('Starbucks Simple and CC Returns') +
+  xlab('Year') +
+  ylab('Rate')
+
+```
+
+

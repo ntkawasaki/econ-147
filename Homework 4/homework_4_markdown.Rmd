@@ -1,0 +1,395 @@
+---
+title: "Homework 4"
+author: "Noah Kawasaki"
+date: "4-13-2017"
+output:
+  pdf_document: 
+    fig_width: 7
+    keep_tex: yes
+    latex_engine: xelatex
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo=FALSE,
+  message=FALSE,
+  warning=FALSE,
+  root.dir='/Users/noahkawasaki/Desktop/ECON 147/Homework 4'
+  )
+```
+
+```{r}
+library(tidyverse)
+library(stats)
+library(PerformanceAnalytics)
+library(zoo)
+library(tseries)
+set.seed(123)
+```
+
+
+## R Exercises A
+
+### 1. Consider the MA(1) model
+
+#### (a) Using the R function arima.sim(), simulate and plot 250 observations of the MA(1), theoretical ACF (autocorrelation function) and sample ACF with $\theta$=0.5, $\theta$=0.9 and $\theta$=-0.9.
+```{r}
+# Theta = 0.5
+ma1 <- list(ma=0.5)
+ma_sim1 <- 0.05 + arima.sim(model=ma1, n=250, innov=rnorm(n=250, mean=0, sd=0.1))
+acf1 = ARMAacf(ma=0.5, lag.max=10)
+
+par(mfrow=c(3,1))
+ts.plot(ma_sim1, main=expression(paste("MA(1): ", mu, "=0.05, ", theta, "=0.5")), 
+        xlab="time", ylab="y(t)")
+abline(h=0)
+plot(1:10, acf1[2:11], type="h", col="blue", main="Theoretical ACF", ylab="ACF", xlab="Lag")
+tmp1 = acf(ma_sim1, lag.max=10, main="Sample ACF")
+
+# Theta = 0.9
+ma2 <- list(ma=0.9)
+ma_sim2 <- 0.05 + arima.sim(model=ma2, n=250, innov=rnorm(n=250, mean=0, sd=0.1))
+acf2 = ARMAacf(ma=0.9, lag.max=10)
+
+par(mfrow=c(3,1))
+ts.plot(ma_sim2, main=expression(paste("MA(1): ", mu, "=0.05, ", theta, "=0.9")), 
+        xlab="time", ylab="y(t)")
+abline(h=0)
+plot(1:10, acf2[2:11], type="h", col="blue", main="Theoretical ACF", ylab="ACF", xlab="Lag")
+tmp2 = acf(ma_sim2, lag.max=10, main="Sample ACF")
+
+
+# Theta = -0.9
+ma3 <- list(ma=-0.9)
+ma_sim3 <- 0.05 + arima.sim(model=ma3, n=250, innov=rnorm(n=250, mean=0, sd=0.1))
+acf3 = ARMAacf(ma=-0.9, lag.max=10)
+
+par(mfrow=c(3,1))
+ts.plot(ma_sim3, main=expression(paste("MA(1): ", mu, "=0.05, ", theta, "=-0.9")), 
+        xlab="time", ylab="y(t)")
+abline(h=0)
+plot(1:10, acf3[2:11], type="h", col="blue", main="Theoretical ACF", ylab="ACF", xlab="Lag")
+tmp3 = acf(ma_sim3, lag.max=10, main="Sample ACF")
+```
+
+#### (b) Briefly comment on the behavior of the simulated data series.  
+The MA(1) time series shows a spike of time dependence at one lag for this simulation. The direction depends on the sign of $\theta$ Note that this spike is outside the confidence interval. Also, the higher $\theta$ can can result in a lower or higher than usual first point in the series.
+
+### 1. Consider the AR(1) model
+
+#### (a) Using the R function arima.sim(), simulate and plot 250 observations of the AR(1) with $\phi$=0, $\phi$=0.5, $\phi$=0.9 and $\phi$=0.99.
+
+```{r}
+# Phi = 0
+ar1 <- list(ar=0)
+ar_sim1 <- 0.05 + arima.sim(model=ar1, n=250, innov=rnorm(n=250, mean=0, sd=0.1))
+acf_ar1 = ARMAacf(ar=0, lag.max=10)
+
+par(mfrow=c(3,1))
+ts.plot(ar_sim1, main=expression(paste("AR(1): ", mu, "=0.05, ", phi, "=0")), 
+        xlab="time", ylab="y(t)")
+abline(h=0)
+plot(1:10, acf_ar1[2:11], type="h", col="blue", main="Theoretical ACF", ylab="ACF", xlab="Lag")
+tmp_ar1 = acf(ar_sim1, lag.max=10, main="Sample ACF")
+
+
+# Phi = 0.5
+ar2 <- list(ar=0.5)
+ar_sim2 <- 0.05 + arima.sim(model=ar2, n=250, innov=rnorm(n=250, mean=0, sd=0.1))
+acf_ar2 = ARMAacf(ar=0.5, lag.max=10)
+
+par(mfrow=c(3,1))
+ts.plot(ar_sim2, main=expression(paste("AR(1): ", mu, "=0.05, ", phi, "=0.5")), 
+        xlab="time", ylab="y(t)")
+abline(h=0)
+plot(1:10, acf_ar2[2:11], type="h", col="blue", main="Theoretical ACF", ylab="ACF", xlab="Lag")
+tmp_ar2 = acf(ar_sim2, lag.max=10, main="Sample ACF")
+
+
+# Phi = 0.9
+ar3 <- list(ar=0.9)
+ar_sim3 <- 0.05 + arima.sim(model=ar3, n=250, innov=rnorm(n=250, mean=0, sd=0.1))
+acf_ar3 = ARMAacf(ar=0.9, lag.max=10)
+
+par(mfrow=c(3,1))
+ts.plot(ar_sim3, main=expression(paste("AR(1): ", mu, "=0.05, ", phi, "=0.9")), 
+        xlab="time", ylab="y(t)")
+abline(h=0)
+plot(1:10, acf_ar3[2:11], type="h", col="blue", main="Theoretical ACF", ylab="ACF", xlab="Lag")
+tmp_ar3 = acf(ar_sim3, lag.max=10, main="Sample ACF")
+
+
+# Phi = 0.99
+ar4 <- list(ar=0.99)
+ar_sim4 <- 0.05 + arima.sim(model=ar4, n=250, innov=rnorm(n=250, mean=0, sd=0.1))
+acf_ar4 = ARMAacf(ar=0.99, lag.max=10)
+
+par(mfrow=c(3,1))
+ts.plot(ar_sim4, main=expression(paste("AR(1): ", mu, "=0.05, ", phi, "=0.99")), 
+        xlab="time", ylab="y(t)")
+abline(h=0)
+plot(1:10, acf_ar4[2:11], type="h", col="blue", main="Theoretical ACF", ylab="ACF", xlab="Lag")
+tmp_ar4 = acf(ar_sim4, lag.max=10, main="Sample ACF")
+```
+
+
+#### (b) Comment on the behavior of the simulated data series. Which series is close to nonstationary (or persistent) time series?  
+The AR(1) time series shows time dependence that decays slowly over time. We can observe that the higher phi associates with stronger persistence. However, when it gets too close to 1 it becomes like a nonstationary process.
+
+
+## R Exercises B
+
+### 0. Briefly discuss what these assets are (VBLTX, FMAGX and SBUX)  
+VBLTX is the Vanguard Long-Term Bond Index mutual fund, FMAGX is the Fidelity Magellan Fund, and SBUX is Starbucks stock.
+
+### 1. (Descriptive Statistics) Do the following replication exercises.
+```{r, results='hide'}
+# VBLTX
+VBLTX.prices = get.hist.quote(instrument="vbltx", start="1998-01-01",
+                              end="2009-12-31", quote="AdjClose",
+                              provider="yahoo", origin="1970-01-01",
+                              compression="m", retclass="zoo")
+index(VBLTX.prices) = as.yearmon(index(VBLTX.prices))
+
+# FMAGX
+FMAGX.prices = get.hist.quote(instrument="fmagx", start="1998-01-01",
+                              end="2009-12-31", quote="AdjClose",
+                              provider="yahoo", origin="1970-01-01",
+                              compression="m", retclass="zoo")
+index(FMAGX.prices) = as.yearmon(index(FMAGX.prices))
+
+# SBUX
+SBUX.prices = get.hist.quote(instrument="sbux", start="1998-01-01",
+                             end="2009-12-31", quote="AdjClose",
+                             provider="yahoo", origin="1970-01-01",
+                             compression="m", retclass="zoo")
+index(SBUX.prices) = as.yearmon(index(SBUX.prices))
+
+# Create merged price data
+lab4Prices.z = merge(VBLTX.prices, FMAGX.prices, SBUX.prices)
+colnames(lab4Prices.z) = c("VBLTX", "FMAGX", "SBUX")
+
+# Returns
+lab4Returns.z = diff(log(lab4Prices.z))
+```
+
+#### (a) Make time plots of the returns. Comment on any relationships between the returns suggested by the plots. Pay particular attention to the behavior of returns toward the end of 2008 at the beginning of the financial crisis.  
+```{r}
+chart.TimeSeries(lab4Returns.z, legend.loc="bottom", main="Returns") 
+```
+
+All time series appear to be stationary with varying levels of volatility. There is more volatility towards the financial crisis, especially in SBUX and FMAGX. 
+
+#### (b) Make a cumulative return plot (future of $1 invested in each asset) and comment. Which assets gave the best and worst future values over the investment horizon?  
+```{r}
+chart.CumReturns(lab4Returns.z, 
+                 legend.loc="topleft", wealth.index=TRUE,
+                 main="Future Value of $1 invested")
+```
+
+From this plot, the VBLTX gave the best future value of the investment at present time. But we also note that Starbucks had the highest value around 3.5, before it dropped significantly in 2007. The FMAGX consistently had the worst future values.
+
+#### (c) For each return series, make a four panel plot containing a histogram, density plot, boxplot and normal QQ-plot. Do the return series look normally distributed? Briefly compare the return distributions.
+```{r}
+ret.mat = coredata(lab4Returns.z)
+
+# VBLTX
+par(mfrow=c(2,2))
+hist(ret.mat[,"VBLTX"],main="VBLTX monthly returns",
+     xlab="VBLTX", probability=T, col="slateblue1")
+boxplot(ret.mat[,"VBLTX"],outchar=T, main="Boxplot", col="slateblue1")
+plot(density(ret.mat[,"VBLTX"]),type="l", main="Smoothed density",
+     xlab="monthly return", ylab="density estimate", col="slateblue1")
+qqnorm(ret.mat[,"VBLTX"], col="slateblue1")
+qqline(ret.mat[,"VBLTX"])
+par(mfrow=c(1,1))
+
+# FMAGX
+par(mfrow=c(2,2))
+hist(ret.mat[,"FMAGX"],main="FMAGX monthly returns",
+     xlab="FMAGX", probability=T, col="slateblue1")
+boxplot(ret.mat[,"FMAGX"],outchar=T, main="Boxplot", col="slateblue1")
+plot(density(ret.mat[,"FMAGX"]),type="l", main="Smoothed density",
+     xlab="monthly return", ylab="density estimate", col="slateblue1")
+qqnorm(ret.mat[,"FMAGX"], col="slateblue1")
+qqline(ret.mat[,"FMAGX"])
+par(mfrow=c(1,1))
+
+# SBUX
+par(mfrow=c(2,2))
+hist(ret.mat[,"SBUX"],main="SBUX monthly returns",
+     xlab="SBUX", probability=T, col="slateblue1")
+boxplot(ret.mat[,"SBUX"],outchar=T, main="Boxplot", col="slateblue1")
+plot(density(ret.mat[,"SBUX"]),type="l", main="Smoothed density",
+     xlab="monthly return", ylab="density estimate", col="slateblue1")
+qqnorm(ret.mat[,"SBUX"], col="slateblue1")
+qqline(ret.mat[,"SBUX"])
+par(mfrow=c(1,1))
+
+# All Boxplots together
+chart.Boxplot(lab4Returns.z)
+```
+
+For the most part, the returns of these time series all look somewhat normal. The QQ-Plots all show fatter tails than a normal distribution, which is expected in financial return data. We can also see that Starbucks has a slightly higher median value than zero.
+
+
+#### (d) Compute numerical descriptive statistics for all assets using the R functions summary(), mean(), var(), stdev(), skewness(), and kurtosis() (in package PerformanceAnalytics). Compare and contrast the descriptive statistics for the three assets. Which asset appears to be the riskiest asset?
+```{r}
+table.Stats(lab4Returns.z)
+```
+
+Here we again see that SBUX has a median return of about 2% while the others are around 0.1%. Starbucks also has the highest maximum value. However, Starbuck's variance is at 0.01 while the other series are 0.0007 and 0.0041. All series have a slight negative skew, meaning longer tails to the left than the right. Starbucks and VBLTX have lower than normal Kurtosis and FMAGX has a higher kurtosis. From these results we can see that Starbucks is the riskiest asset, but also has the chance for highest return.
+
+
+#### (e) Using the mean monthly return for each asset, compute an estimate of the annual continuously compounded return (i.e., recall the relationship between the expected monthly cc return and the expected annual cc return).  Convert this annual continuously compounded return into a simple annual return. Are there any surprises?
+
+```{r}
+# Annualized cc mean 
+12*apply(ret.mat, 2, mean)
+
+# Annualized simple mean
+exp(12*apply(ret.mat, 2, mean)) - 1
+```
+
+Here we see Starbucks has the highest cc return at 0.14, with VBLTX in second at 0.06 and FMAGX at 0.02. When we convert these to simple returns all the values are slightly higher.
+
+
+#### (f) Using the estimate of the monthly return standard deviation for each asset, compute an estimate of the annual return standard deviation. Briefly comment on the magnitude of the annual standard deviations.
+```{r}
+# Annualized sd values
+sqrt(12)*apply(ret.mat, 2, sd)
+```
+
+Starbucks has the largest standard deviation. FMAGX and VBLTX have the second and third largest standard deviations.
+
+#### (g) Use the R pairs() function to create all pair-wise scatterplots of returns. Comment on the direction and strength of the linear relationships in these plots.
+```{r}
+pairs(ret.mat, col="slateblue1", pch=16)
+```
+
+From our plot we can see that FMAGX and SBUX have a positive association. FMAGX and VBLTX also appear to have weak positive associations. VBLTX and SBUX seem to have a negative association. All of these relationships look somewhat weak, with the exception of VBLTX and SBUX.
+
+#### (h) Use the R functions var() and cor() to compute the sample covariance matrix and sample correlation matrix of the returns. Comment on the direction and strength of the linear relationships suggested by the values of the covariances and correlations.
+```{r}
+var(ret.mat)
+cor(ret.mat)
+```
+
+The matrix tells us that FMAGX and VBLTX have a weak positive correlation, VBLTX and SBUX have a weak negative correlation, and SBUX and FMAGX have a moderate positive correlation.
+
+#### (i) Use the R function acf() to compute and plot the sample autocorrelation functions of each return. Do the returns appear to be uncorrelated over time?
+```{r}
+par(mfrow=c(3,1))
+acf.msft = acf(ret.mat[,"VBLTX"], main="VBLTX")
+acf.sbux = acf(ret.mat[,"FMAGX"], main="FMAGX")
+acf.sp500 = acf(ret.mat[,"SBUX"], main="SBUX")
+par(mfrow=c(1,1))
+
+```
+
+The ACF plots tell us that all the series are not time dependent. VBLTX has one significat spike at lag 2 but this probably does not carry any economic meaning and is due to chance.
+
+  
+### 2. (IID Normal Model) Consider the IID normal model
+
+#### (a) Using sample descriptive statistics, give estimates for the model parameters. Arrange these estimates nicely in a table. Briefly comment.
+```{r}
+muhat.vals = apply(ret.mat, 2, mean)
+sigma2hat.vals = apply(ret.mat, 2, var)
+sigmahat.vals = apply(ret.mat, 2, sd)
+cov.mat = var(ret.mat)
+cor.mat = cor(ret.mat)
+covhat.vals = cov.mat[lower.tri(cov.mat)]
+rhohat.vals = cor.mat[lower.tri(cor.mat)]
+names(covhat.vals) <- names(rhohat.vals) <- c("VBLTX,FMAGX","VBLTX,SBUX","FMAGX,SBUX")
+
+# Matrix
+cbind(muhat.vals, sigma2hat.vals, sigmahat.vals)
+# Covariance Matrix
+cbind(covhat.vals, rhohat.vals)
+```
+
+Our estimates of these parameters all coincide with what we observed earlier. SBUX has the highest mean value but also the largest variance(risk). The covariane and correlation coefficients also indicate the same relationships as noted earlier.
+
+
+#### (b) For each estimate of the above parameters. Briefly comment on the precision of the estimates.
+```{r}
+nobs = nrow(ret.mat)
+se.muhat = sigmahat.vals/sqrt(nobs)
+cbind(muhat.vals, se.muhat)
+```
+
+SBUX has the largest standard error at 0.009, FMAGX has the second largest at 0.005, and VBLTX the lowest at 0.002.
+
+#### (c) For each parameter compute 95% and 99% confidence intervals. Briefly comment on the width of these intervals.
+```{r}
+# compute approx 95% confidence intervals for means
+mu.lower = muhat.vals - 2*se.muhat
+mu.upper = muhat.vals + 2*se.muhat
+cbind(mu.lower,mu.upper)
+```
+
+There are negative and positive values for the returns, which might indicate bad estimation.
+
+```{r}
+# compute estimated standard errors for variance and sd
+se.sigma2hat = sigma2hat.vals/sqrt(nobs/2)
+se.sigmahat = sigmahat.vals/sqrt(2*nobs)
+
+# compute approx 95% confidence intervals
+sigma2.lower = sigma2hat.vals - 2*se.sigma2hat
+sigma2.upper = sigma2hat.vals + 2*se.sigma2hat
+cbind(sigma2.lower,sigma2.upper)
+
+sigma.lower = sigmahat.vals - 2*se.sigmahat
+sigma.upper = sigmahat.vals + 2*se.sigmahat
+cbind(sigma.lower,sigma.upper)
+```
+
+The SE for variance and SE are very narrow, which means good precision.
+
+```{r}
+# compute estimated standard errors for correlation
+se.rhohat = (1-rhohat.vals^2)/sqrt(nobs)
+cbind(rhohat.vals,se.rhohat)
+
+# compute approx 95% confidence intervals
+rho.lower = rhohat.vals - 2*se.rhohat
+rho.upper = rhohat.vals + 2*se.rhohat
+cbind(rho.lower,rho.upper)
+```
+
+These intervals for the top 2 are somewhat wide and between negative and positive numbers. The bottom row looks narrower and on the same side of zero.
+
+#### (d) Compute the 1% and 5% monthly value-at-Risk (VaR) based on an initial $100,000 investment. Which fund has the lowest VaR?
+
+```{r}
+Value.at.Risk = function(x,p=0.05,w=100000) {
+  x = as.matrix(x)
+  q = apply(x, 2, mean) + apply(x, 2, sd)*qnorm(p)
+  VaR = (exp(q) - 1)*w
+  VaR
+}
+
+# 5% and 1% VaR estimates based on W0 = 100000
+Value.at.Risk(ret.mat,p=0.05,w=100000)
+Value.at.Risk(ret.mat,p=0.01,w=100000)
+```
+
+The VBLTX fund has the lowest VaR, and SBUX has the highest VaR. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

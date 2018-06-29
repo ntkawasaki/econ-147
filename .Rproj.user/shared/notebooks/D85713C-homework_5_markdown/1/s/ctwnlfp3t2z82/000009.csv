@@ -1,0 +1,2 @@
+"0","# Plot returns"
+"0","plot(MSFT.ret, main=""Microsfot Daily Returns"")"

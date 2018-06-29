@@ -1,0 +1,30 @@
+"0","Value.at.Risk = function(x,p=0.05,w=100000) {
+  x = as.matrix(x)
+  q = apply(x, 2, mean) + apply(x, 2, sd)*qnorm(p)
+  VaR = (exp(q) - 1)*w
+  VaR
+}
+# 5% and 1% VaR estimates based on W0 = 100000
+Value.at.Risk(ret.mat,p=0.05,w=100000)
+"
+"1"," VBLTX "
+"1"," FMAGX "
+"1","  SBUX "
+"1","
+"
+"1"," -3720 "
+"1"," -9838 "
+"1","-16895 "
+"1","
+"
+"0","Value.at.Risk(ret.mat,p=0.01,w=100000)"
+"1"," VBLTX "
+"1"," FMAGX "
+"1","  SBUX "
+"1","
+"
+"1"," -5429 "
+"1","-13692 "
+"1","-23389 "
+"1","
+"
